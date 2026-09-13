@@ -27,6 +27,14 @@ button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radi
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.yellow{background:var(--warn)}.red{background:var(--bad)}.green{background:var(--good)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#203637;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:20}.toast.show{opacity:1}
 @media(max-width:800px){.shell{grid-template-columns:1fr}nav{display:none}main{padding:12px}.weekhead,.daygrid{grid-template-columns:48px repeat(5,150px)}.week{overflow:auto}.topline{align-items:flex-start;flex-direction:column}.pill.hideMobile{display:none}}
+
+.todayCol{background-color:#fbfefd!important}
+.nowLine{position:absolute;left:0;right:0;height:2px;background:#d75d55;z-index:4;pointer-events:none}
+.nowLine:before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#d75d55}
+.nowLabel{position:absolute;right:4px;top:-16px;font-size:10px;font-weight:800;color:#b54842;background:#fff;padding:1px 4px;border-radius:5px}
+.appt .buffer{position:absolute;left:0;right:0;bottom:0;height:18%;background:rgba(255,255,255,.65);border-top:1px dashed rgba(11,102,99,.35);font-size:9px;text-align:right;padding:1px 4px;color:#647477}
+.birthday{margin-left:4px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 </style></head>
 <body>
 <header><div class="brand"><div class="logo">RA</div><div><b>RunAssist</b><small>Terminplanung · Prototyp v0.2</small></div></div><div class="user"><span class="pill hideMobile">Praxis · Wochenansicht</span><span class="pill">Stephan ▾</span></div></header>
@@ -71,41 +79,135 @@ button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radi
 <div class="row"><div class="field"><label>Behandlungen</label><input type="number" value="6" min="1"></div><div class="field"><label>Frequenz / Woche</label><select><option>1–3× flexibel</option><option>1×</option><option>2× bevorzugt</option><option>3× bevorzugt</option></select></div></div>
 <div class="field"><label>Verfügbarkeit</label><div class="checks"><span class="chip">Vormittags</span><span class="chip">Nachmittags</span><span class="chip">Abends</span><span class="chip">Berufstätig</span><span class="chip">Krankgeschrieben</span><span class="chip">Flexibel</span></div></div>
 <button class="primary" style="width:100%" onclick="createPatient()">Patient anlegen & Terminserie suchen</button>
+<div class="field"><label>Terminzettel · Vorbereitung</label>
+<div class="setting"><span>Therapeut auf Terminzettel anzeigen</span><input id="printTherapist" type="checkbox" checked style="width:auto"></div>
+<div class="muted" style="margin-top:5px">Druckfunktion folgt später; die Auswahl ist hier schon vorgemerkt.</div></div>
+
 <div id="qresult" class="notice" style="display:none;margin-top:12px"></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
 const times=document.getElementById('times');
 for(let h=8;h<18;h++){let x=document.createElement('div');x.className='time';x.textContent=String(h).padStart(2,'0')+':00';times.appendChild(x)}
+
 const data=[
-['d1',8.00,25,'Klaus Meier','KG · 0151 23456789',''],
-['d1',8.50,35,'Anna König','KG-ZNS · 0176 55443322',''],
-['d1',10.00,50,'Peter Kruse','MLD 45 · 0541 123456','warn'],
-['d1',11.25,25,'Maren Sommer','KG · 0171 221144',''],
-['d1',14.00,25,'Jörg Peters','MT · 0152 998877',''],
-['d2',8.25,25,'Heike Albers','KG · 0160 334455',''],
-['d2',9.25,65,'Rolf Vogt','MLD 60 · 0541 667788',''],
-['d2',14.25,25,'Sabine Berger','KG · 0178 112233',''],
-['d2',16.83,25,'Thomas Lenz','MT · 0151 876543','bad'],
-['d3',8.00,35,'Martin Wolf','KG-ZNS · 0172 445566',''],
-['d3',9.25,25,'Elke Eilers','KG · 0157 223344',''],
-['d3',11.00,35,'Petra Scholz','MLD 30 · 0541 998811',''],
-['d3',15.00,25,'Klaus Meier','KG · 0151 23456789',''],
-['d4',8.50,25,'Sabine Berger','KG · 0178 112233',''],
-['d4',10.00,25,'Michael Brandt','MT · 0162 555777',''],
-['d4',14.00,50,'Ute Janssen','MLD 45 · 0541 333222',''],
-['d5',8.00,25,'Jörg Peters','MT · 0152 998877',''],
-['d5',9.25,35,'Anna König','KG-ZNS · 0176 55443322',''],
-['d5',11.00,25,'Maren Sommer','KG · 0171 221144','']
+{id:'a1',day:'d1',start:8.00,min:25,name:'Klaus Meier',meta:'KG · 20 + 5 Min · 0151 23456789',cl:'',birthday:false},
+{id:'a2',day:'d1',start:8.50,min:35,name:'Anna König',meta:'KG-ZNS · 30 + 5 Min · 0176 55443322',cl:'',birthday:true},
+{id:'a3',day:'d1',start:10.00,min:50,name:'Peter Kruse',meta:'MLD 45 · 45 + 5 Min · 0541 123456',cl:'warn',birthday:false},
+{id:'a4',day:'d1',start:11.25,min:25,name:'Maren Sommer',meta:'KG · 20 + 5 Min · 0171 221144',cl:'',birthday:false},
+{id:'a5',day:'d1',start:14.00,min:25,name:'Jörg Peters',meta:'MT · 20 + 5 Min · 0152 998877',cl:'',birthday:false},
+{id:'a6',day:'d2',start:8.25,min:25,name:'Heike Albers',meta:'KG · 20 + 5 Min · 0160 334455',cl:'',birthday:false},
+{id:'a7',day:'d2',start:9.25,min:65,name:'Rolf Vogt',meta:'MLD 60 · 60 + 5 Min · 0541 667788',cl:'',birthday:false},
+{id:'a8',day:'d2',start:14.25,min:25,name:'Sabine Berger',meta:'KG · 20 + 5 Min · 0178 112233',cl:'',birthday:false},
+{id:'a9',day:'d2',start:16.83,min:25,name:'Thomas Lenz',meta:'MT · 20 + 5 Min · 0151 876543',cl:'bad',birthday:false},
+{id:'a10',day:'d3',start:8.00,min:35,name:'Martin Wolf',meta:'KG-ZNS · 30 + 5 Min · 0172 445566',cl:'',birthday:false},
+{id:'a11',day:'d3',start:9.25,min:25,name:'Elke Eilers',meta:'KG · 20 + 5 Min · 0157 223344',cl:'',birthday:false},
+{id:'a12',day:'d3',start:11.00,min:35,name:'Petra Scholz',meta:'MLD 30 · 30 + 5 Min · 0541 998811',cl:'',birthday:false},
+{id:'a13',day:'d3',start:15.00,min:25,name:'Klaus Meier',meta:'KG · 20 + 5 Min · 0151 23456789',cl:'',birthday:false},
+{id:'a14',day:'d4',start:8.50,min:25,name:'Sabine Berger',meta:'KG · 20 + 5 Min · 0178 112233',cl:'',birthday:false},
+{id:'a15',day:'d4',start:10.00,min:25,name:'Michael Brandt',meta:'MT · 20 + 5 Min · 0162 555777',cl:'',birthday:false},
+{id:'a16',day:'d4',start:14.00,min:50,name:'Ute Janssen',meta:'MLD 45 · 45 + 5 Min · 0541 333222',cl:'',birthday:false},
+{id:'a17',day:'d5',start:8.00,min:25,name:'Jörg Peters',meta:'MT · 20 + 5 Min · 0152 998877',cl:'',birthday:false},
+{id:'a18',day:'d5',start:9.25,min:35,name:'Anna König',meta:'KG-ZNS · 30 + 5 Min · 0176 55443322',cl:'',birthday:false},
+{id:'a19',day:'d5',start:11.00,min:25,name:'Maren Sommer',meta:'KG · 20 + 5 Min · 0171 221144',cl:'',birthday:false}
 ];
+
+const apptState={};
+let currentApptId=null;
 function y(hour){return (hour-8)*72}
-data.forEach(([id,start,min,name,meta,cl])=>{let e=document.createElement('div');e.className='appt '+cl;e.style.top=y(start)+'px';e.style.height=Math.max(30,min/60*72)+'px';e.innerHTML='<b>'+name+'</b><small>'+meta+'</small>';e.onclick=()=>openPatient(name,meta);document.getElementById(id).appendChild(e)})
-let free=document.createElement('div');free.className='free';free.style.top=y(12.75)+'px';free.style.height='42px';free.textContent='Freier Slot · 35 Min';document.getElementById('d3').appendChild(free);
-function openPatient(n,m){document.getElementById('pname').textContent=n;document.getElementById('pmeta').textContent=m;document.getElementById('drawer').classList.add('open')}
+
+data.forEach(a=>{
+  apptState[a.id]={status:'Geplant',reason:'',note:''};
+  const e=document.createElement('div');
+  e.className='appt '+a.cl;
+  e.style.top=y(a.start)+'px';
+  e.style.height=Math.max(30,a.min/60*72)+'px';
+  e.innerHTML='<b>'+a.name+(a.birthday?' <span class="birthday" title="Heute Geburtstag">🎂</span>':'')+'</b><small>'+a.meta+'</small><div class="buffer">5 Min Puffer</div>';
+  e.onclick=()=>openPatient(a.id);
+  document.getElementById(a.day).appendChild(e);
+});
+
+let free=document.createElement('div');
+free.className='free';free.style.top=y(12.75)+'px';free.style.height='42px';
+free.textContent='Freier Slot · 35 Min';document.getElementById('d3').appendChild(free);
+
+function openPatient(id){
+  currentApptId=id;
+  const a=data.find(x=>x.id===id), s=apptState[id];
+  document.getElementById('pname').textContent=a.name+(a.birthday?' 🎂':'');
+  document.getElementById('pmeta').textContent=a.meta+(a.birthday?' · Heute Geburtstag':'');
+  document.querySelectorAll('#statuses .chip').forEach(c=>{
+    const label=c.textContent.replace('✓ ','').trim();
+    c.classList.toggle('sel',label===s.status);
+  });
+  const show=/Abgesagt|Kurzfristig|Nicht erschienen/.test(s.status);
+  document.getElementById('reasonBox').style.display=show?'block':'none';
+  document.querySelector('#reasonBox select').value=s.reason||'Bitte wählen …';
+  document.querySelector('#reasonBox textarea').value=s.note||'';
+  document.getElementById('drawer').classList.add('open');
+}
 function closeDrawer(){document.getElementById('drawer').classList.remove('open')}
 function closeQuick(){document.getElementById('quickDrawer').classList.remove('open')}
 document.getElementById('quick').onclick=()=>document.getElementById('quickDrawer').classList.add('open');
-document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(c.parentElement.id==='statuses'){c.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');document.getElementById('reasonBox').style.display=/Abgesagt|Kurzfristig|Nicht erschienen/.test(c.textContent)?'block':'none'}else{c.classList.toggle('sel');if(c.closest('#drawer')&&c.parentElement.classList.contains('checks')){let t=document.getElementById('doc');if(c.classList.contains('sel'))t.value+=(t.value?', ':'')+c.textContent}}});
-function createPatient(){let n=document.getElementById('qname').value.trim()||'Neuer Patient',p=document.getElementById('qphone').value.trim();let r=document.getElementById('qresult');r.style.display='flex';r.innerHTML='<span class="dot '+(p?'yellow':'red')+'"></span><span><b>'+n+'</b> angelegt · '+(p?'Stammdaten noch vervollständigen.':'⚠ Telefonnummer fehlt.')+'<br>Seriensuche bereit: 3 passende Vorschläge gefunden.</span>';toast('Schnellanlage gespeichert')}
-function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1500)}
+
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  if(c.parentElement.id==='statuses'){
+    c.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+    c.classList.add('sel');
+    const st=c.textContent.replace('✓ ','').trim();
+    if(currentApptId) apptState[currentApptId].status=st;
+    document.getElementById('reasonBox').style.display=/Abgesagt|Kurzfristig|Nicht erschienen/.test(st)?'block':'none';
+  }else{
+    c.classList.toggle('sel');
+    if(c.closest('#drawer')&&c.parentElement.classList.contains('checks')){
+      const t=document.getElementById('doc');
+      if(c.classList.contains('sel')) t.value+=(t.value?', ':'')+c.textContent;
+    }
+  }
+});
+document.querySelector('#reasonBox select').addEventListener('change',e=>{
+  if(currentApptId) apptState[currentApptId].reason=e.target.value;
+});
+document.querySelector('#reasonBox textarea').addEventListener('input',e=>{
+  if(currentApptId) apptState[currentApptId].note=e.target.value;
+});
+
+function saveCurrentAppointment(){
+  if(currentApptId){
+    apptState[currentApptId].reason=document.querySelector('#reasonBox select').value;
+    apptState[currentApptId].note=document.querySelector('#reasonBox textarea').value;
+  }
+  toast('Termin individuell gespeichert');
+}
+document.querySelector('button.primary[onclick*="Termin aktualisiert"]').setAttribute('onclick','saveCurrentAppointment()');
+
+function createPatient(){
+  let n=document.getElementById('qname').value.trim()||'Neuer Patient',
+      p=document.getElementById('qphone').value.trim(),
+      r=document.getElementById('qresult');
+  r.style.display='flex';
+  r.innerHTML='<span class="dot '+(p?'yellow':'red')+'"></span><span><b>'+n+'</b> angelegt · '+(p?'Stammdaten noch vervollständigen.':'⚠ Telefonnummer fehlt.')+'<br>Seriensuche bereit: 3 passende Vorschläge gefunden.</span>';
+  toast('Schnellanlage gespeichert');
+}
+
+function updateNowLine(){
+  document.querySelectorAll('.nowLine').forEach(x=>x.remove());
+  document.querySelectorAll('.day').forEach(x=>x.classList.remove('todayCol'));
+  const now=new Date(), mins=now.getHours()*60+now.getMinutes(), jsDay=now.getDay();
+  if(jsDay<1||jsDay>5||mins<480||mins>1080)return;
+  const col=document.getElementById('d'+jsDay);
+  if(!col)return;
+  col.classList.add('todayCol');
+  const line=document.createElement('div');
+  line.className='nowLine';
+  line.style.top=((mins-480)/60*72)+'px';
+  line.innerHTML='<span class="nowLabel">'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+'</span>';
+  col.appendChild(line);
+}
+updateNowLine(); setInterval(updateNowLine,60000);
+
+function toast(t){
+  let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');
+  setTimeout(()=>x.classList.remove('show'),1500);
+}
 </script></body></html>
