@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>RunAssist Terminplanung v0.1</title>
+<title>RunAssist Terminplanung v0.2</title>
 <style>
 :root{--petrol:#0b6663;--petrol2:#0f7d78;--ink:#243638;--muted:#718184;--line:#dbe5e4;--bg:#f4f8f7;--card:#fff;--warn:#f1bd43;--bad:#d75d55;--good:#3f9c72;--blue:#3979b8}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
@@ -29,7 +29,7 @@ button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radi
 @media(max-width:800px){.shell{grid-template-columns:1fr}nav{display:none}main{padding:12px}.weekhead,.daygrid{grid-template-columns:48px repeat(5,150px)}.week{overflow:auto}.topline{align-items:flex-start;flex-direction:column}.pill.hideMobile{display:none}}
 </style></head>
 <body>
-<header><div class="brand"><div class="logo">RA</div><div><b>RunAssist</b><small>Terminplanung · Prototyp v0.1</small></div></div><div class="user"><span class="pill hideMobile">Praxis · Wochenansicht</span><span class="pill">Stephan ▾</span></div></header>
+<header><div class="brand"><div class="logo">RA</div><div><b>RunAssist</b><small>Terminplanung · Prototyp v0.2</small></div></div><div class="user"><span class="pill hideMobile">Praxis · Wochenansicht</span><span class="pill">Stephan ▾</span></div></header>
 <div class="shell">
 <nav>
 <button class="navbtn active">▦ Mein Kalender</button>
@@ -43,14 +43,14 @@ button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radi
 <main>
 <div class="topline"><div><h1>Meine Woche</h1><div class="muted">Stephan · 14.–18. September · 5-Minuten-Raster</div></div>
 <div class="actions"><button id="prev">‹</button><button>Heute</button><button id="next">›</button><button id="quick" class="primary">＋ Schnellanlage</button></div></div>
-<div class="notice"><span>💡</span><span><b>Planungshinweis:</b> Dienstag 16:15–17:35 entsteht eine lange Lücke. Frau Berger könnte auf 16:15 vorgezogen werden → möglicher früherer Feierabend.</span><button onclick="toast('Optimierung vorgemerkt')">Prüfen</button></div>
+<div class="notice"><span>💡</span><span><b>Planungshinweis:</b> Dienstag 16:15–17:35 entsteht eine lange Lücke. Sabine Berger könnte auf 16:15 vorgezogen werden → möglicher früherer Feierabend.</span><button onclick="toast('Optimierung vorgemerkt')">Prüfen</button></div>
 <div class="week">
 <div class="weekhead"><div></div><div><b>Mo</b><small>14.09.</small></div><div><b>Di</b><small>15.09.</small></div><div><b>Mi</b><small>16.09.</small></div><div><b>Do</b><small>17.09.</small></div><div><b>Fr</b><small>18.09.</small></div></div>
 <div class="daygrid"><div class="timecol" id="times"></div>
 <div class="day" id="d1"></div><div class="day" id="d2"></div><div class="day" id="d3"></div><div class="day" id="d4"></div><div class="day" id="d5"></div></div></div>
 </main></div>
 
-<div class="drawer" id="drawer"><button class="close" onclick="closeDrawer()">×</button><h2 id="pname">Herr Meier</h2><div class="muted" id="pmeta">KG · 20 + 5 Min · 0151 23456789</div>
+<div class="drawer" id="drawer"><button class="close" onclick="closeDrawer()">×</button><h2 id="pname">Klaus Meier</h2><div class="muted" id="pmeta">KG · 20 + 5 Min · 0151 23456789</div>
 <div class="field"><label>Terminstatus</label><div class="statuses" id="statuses"><span class="chip sel">Geplant</span><span class="chip">✓ Stattgefunden</span><span class="chip">Abgesagt</span><span class="chip">Kurzfristig</span><span class="chip">Nicht erschienen</span></div></div>
 <div class="field" id="reasonBox" style="display:none"><label>Ausfallgrund</label><select><option>Bitte wählen …</option><option>Krankheit</option><option>Krankenhausaufenthalt</option><option>Arzttermin</option><option>Patient nicht anwesend</option><option>Einrichtung / Heim abgesagt</option><option>Therapeut ausgefallen</option><option>Sonstiger Grund</option></select><textarea placeholder="Optionale kurze Notiz / Zeitraum"></textarea></div>
 <div class="field"><label>Letzte Verläufe</label>
@@ -78,25 +78,25 @@ button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radi
 const times=document.getElementById('times');
 for(let h=8;h<18;h++){let x=document.createElement('div');x.className='time';x.textContent=String(h).padStart(2,'0')+':00';times.appendChild(x)}
 const data=[
-['d1',8.00,25,'Herr Meier','KG · 0151 23456789',''],
-['d1',8.50,35,'Frau König','KG-ZNS · 0176 55443322',''],
-['d1',10.00,50,'Herr Kruse','MLD 45 · 0541 123456','warn'],
-['d1',11.25,25,'Frau Sommer','KG · 0171 221144',''],
-['d1',14.00,25,'Herr Peters','MT · 0152 998877',''],
-['d2',8.25,25,'Frau Albers','KG · 0160 334455',''],
-['d2',9.25,65,'Herr Vogt','MLD 60 · 0541 667788',''],
-['d2',14.25,25,'Frau Berger','KG · 0178 112233',''],
-['d2',16.83,25,'Herr Lenz','MT · 0151 876543','bad'],
-['d3',8.00,35,'Herr Wolf','KG-ZNS · 0172 445566',''],
-['d3',9.25,25,'Frau Eilers','KG · 0157 223344',''],
-['d3',11.00,35,'Frau Scholz','MLD 30 · 0541 998811',''],
-['d3',15.00,25,'Herr Meier','KG · 0151 23456789',''],
-['d4',8.50,25,'Frau Berger','KG · 0178 112233',''],
-['d4',10.00,25,'Herr Brandt','MT · 0162 555777',''],
-['d4',14.00,50,'Frau Janssen','MLD 45 · 0541 333222',''],
-['d5',8.00,25,'Herr Peters','MT · 0152 998877',''],
-['d5',9.25,35,'Frau König','KG-ZNS · 0176 55443322',''],
-['d5',11.00,25,'Frau Sommer','KG · 0171 221144','']
+['d1',8.00,25,'Klaus Meier','KG · 0151 23456789',''],
+['d1',8.50,35,'Anna König','KG-ZNS · 0176 55443322',''],
+['d1',10.00,50,'Peter Kruse','MLD 45 · 0541 123456','warn'],
+['d1',11.25,25,'Maren Sommer','KG · 0171 221144',''],
+['d1',14.00,25,'Jörg Peters','MT · 0152 998877',''],
+['d2',8.25,25,'Heike Albers','KG · 0160 334455',''],
+['d2',9.25,65,'Rolf Vogt','MLD 60 · 0541 667788',''],
+['d2',14.25,25,'Sabine Berger','KG · 0178 112233',''],
+['d2',16.83,25,'Thomas Lenz','MT · 0151 876543','bad'],
+['d3',8.00,35,'Martin Wolf','KG-ZNS · 0172 445566',''],
+['d3',9.25,25,'Elke Eilers','KG · 0157 223344',''],
+['d3',11.00,35,'Petra Scholz','MLD 30 · 0541 998811',''],
+['d3',15.00,25,'Klaus Meier','KG · 0151 23456789',''],
+['d4',8.50,25,'Sabine Berger','KG · 0178 112233',''],
+['d4',10.00,25,'Michael Brandt','MT · 0162 555777',''],
+['d4',14.00,50,'Ute Janssen','MLD 45 · 0541 333222',''],
+['d5',8.00,25,'Jörg Peters','MT · 0152 998877',''],
+['d5',9.25,35,'Anna König','KG-ZNS · 0176 55443322',''],
+['d5',11.00,25,'Maren Sommer','KG · 0171 221144','']
 ];
 function y(hour){return (hour-8)*72}
 data.forEach(([id,start,min,name,meta,cl])=>{let e=document.createElement('div');e.className='appt '+cl;e.style.top=y(start)+'px';e.style.height=Math.max(30,min/60*72)+'px';e.innerHTML='<b>'+name+'</b><small>'+meta+'</small>';e.onclick=()=>openPatient(name,meta);document.getElementById(id).appendChild(e)})
