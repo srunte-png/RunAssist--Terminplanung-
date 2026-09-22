@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RunAssist Video-Test</title>
+<body style="font-family:system-ui;padding:25px">
+<h2>RunAssist · iPad Video-Test</h2>
+<p>Keine Patientendaten verwenden.</p>
+
+<h3>🎞️ Video auswählen</h3>
+<input id="f" type="file" accept="video/*">
+
+<p id="s">Noch kein Video gewählt.</p>
+<video id="v" controls playsinline style="width:100%;max-width:700px"></video>
+
+<script>
+const f=document.querySelector('#f');
+const v=document.querySelector('#v');
+const s=document.querySelector('#s');
+
+f.onchange=()=>{
+ const x=f.files[0];
+ if(!x)return;
+ s.textContent='Datei erkannt: '+x.name+
+ ' | '+(x.type||'Typ unbekannt')+
+ ' | '+(x.size/1048576).toFixed(1)+' MB';
+ v.src=URL.createObjectURL(x);
+};
+
+v.onloadedmetadata=()=>{
+ s.textContent+=' | VIDEO GELADEN ✓';
+};
+
+v.onerror=()=>{
+ s.textContent+=' | FEHLER BEIM LADEN';
+};
+</script>
+</body>
+</html>
