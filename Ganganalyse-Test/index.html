@@ -153,7 +153,7 @@ button.tapAck::after{content:"✓";position:absolute;right:9px;top:50%;transform
 </style>
 </head>
 <body>
-<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8</div></div><div class="note">Befundworkflow</div></div></header>
+<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8.4 · Zwei-Zyklen-Test</div></div><div class="note">Befundworkflow</div></div></header>
 <main>
 
 <section class="card">
@@ -216,6 +216,7 @@ button.tapAck::after{content:"✓";position:absolute;right:9px;top:50%;transform
 
 <section class="card">
 <h2>6 · Gangphasen · Zwei Zyklen + Befund</h2>
+<div class="caseinfo"><b>Arbeitsregel:</b> Der zuerst gespeicherte Frame bleibt <b>Zyklus 1</b>. Video zum gleichen Ereignis im nächsten Gangzyklus navigieren und dort <b>Zyklus 2 · Frame übernehmen</b> tippen. Erst danach den objektiven Befund erfassen.</div>
 <p class="note">Pro Phase zwei vergleichbare Zyklen sichern. Erst <b>Frame → objektive Beobachtung → Phase korrekt? → Abweichung ja/nein</b>. RunAssist beschreibt – der Therapeut interpretiert. Wiederholungen bleiben intern erhalten und werden später für den Bericht verdichtet.</p>
 <div id="phases" class="phases"></div>
 </section>
@@ -1379,5 +1380,5 @@ $('recordingPlane').onchange=updateSetup;$('filmedSide').onchange=updateSetup;$(
 $('buildSummary').onclick=buildObjectiveSummary;
 updateSetup();
 </script>
-</body>
+<div style="text-align:center;color:#6b7b7d;font-size:10px;padding:18px">Build 0.8.4 · 2026-09-22</div></body>
 </html>
