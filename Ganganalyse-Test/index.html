@@ -153,7 +153,7 @@ button.tapAck::after{content:"✓";position:absolute;right:9px;top:50%;transform
 </style>
 </head>
 <body>
-<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8.6 · Gangphasen-Modus FIX</div></div><div class="note">Befundworkflow</div></div></header>
+<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8.7 · Erfassen ohne Scrollen</div></div><div class="note">Befundworkflow</div></div></header>
 <main>
 
 <section class="card">
@@ -1380,7 +1380,7 @@ $('recordingPlane').onchange=updateSetup;$('filmedSide').onchange=updateSetup;$(
 $('buildSummary').onclick=buildObjectiveSummary;
 updateSetup();
 </script>
-<div style="text-align:center;color:#6b7b7d;font-size:10px;padding:18px">Build 0.8.6 · 2026-09-22</div>
+<div style="text-align:center;color:#6b7b7d;font-size:10px;padding:18px">Build 0.8.7 · 2026-09-22</div>
 <script>
 (()=>{
  const names=['Initial Contact','Loading Response','Early Mid Stance','Late Mid Stance','Terminal Stance','Pre-Swing','Initial Swing','Mid Swing','Terminal Swing'];
@@ -1417,5 +1417,7 @@ updateSetup();
  render();
 })();
 </script>
-</body>
+<style>#raDock{position:fixed;left:10px;right:10px;bottom:10px;z-index:9999;background:white;border:2px solid #86c9c7;border-radius:16px;padding:10px;box-shadow:0 8px 28px #0004}#raDock .r{display:grid;grid-template-columns:1fr 1fr;gap:8px}#raDock button{min-height:42px}#raSave{width:100%;margin:8px 0;background:#087f83;color:white;font-weight:800;font-size:16px}#raTitle{font-weight:800;color:#075f61;font-size:17px}#raProg{font-size:11px;color:#667;margin:4px 0 7px}body{padding-bottom:190px!important}</style>
+<div id="raDock"><div id="raTitle"></div><div id="raProg"></div><div class="r"><button id="raB">← Frame</button><button id="raF">Frame →</button></div><button id="raSave">✓ ÜBERNEHMEN &amp; WEITER</button><div class="r"><button id="raPrev">← Phase zurück</button><button id="raFind">Zur Befundung ↓</button></div></div>
+<script>(()=>{const n=['Initial Contact','Loading Response','Early Mid Stance','Late Mid Stance','Terminal Stance','Pre-Swing','Initial Swing','Mid Swing','Terminal Swing'];let p=0,c=0;const E=x=>document.getElementById(x);function draw(){E('raTitle').textContent='Zyklus '+(c+1)+' · '+n[p];E('raProg').textContent='Erfassung '+(c*9+p)+'/18'}function frame(d){let v=document.querySelector('video');if(!v)return;v.pause();v.currentTime=Math.max(0,Math.min(v.duration||99999,(v.currentTime||0)+d/30))}E('raB').onclick=()=>frame(-1);E('raF').onclick=()=>frame(1);E('raSave').onclick=()=>{let slot=c===0?'A':'B',b=document.querySelector('[data-capture="'+p+'"][data-slot="'+slot+'"]');if(!b){alert('Speicherziel nicht gefunden');return}b.click();E('raSave').textContent='✓ GESPEICHERT';if(p<8)p++;else if(c===0){c=1;p=0}else{E('raTitle').textContent='Beide Zyklen vollständig ✓';E('raProg').textContent='18/18 · jetzt Befundung';E('raSave').textContent='✓ ERFASSUNG FERTIG';return}draw();setTimeout(()=>E('raSave').textContent='✓ ÜBERNEHMEN & WEITER',350)};E('raPrev').onclick=()=>{if(p>0)p--;else if(c){c--;p=8}draw()};E('raFind').onclick=()=>{let s=[...document.querySelectorAll('section')].find(x=>x.textContent.includes('Gangphasen · Zwei Zyklen'));if(s)s.scrollIntoView({behavior:'smooth'})};draw()})();</script></body>
 </html>
