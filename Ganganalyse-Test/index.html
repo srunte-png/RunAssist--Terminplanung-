@@ -153,7 +153,7 @@ button.tapAck::after{content:"✓";position:absolute;right:9px;top:50%;transform
 </style>
 </head>
 <body>
-<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8.5 · Gangphasen-Modus</div></div><div class="note">Befundworkflow</div></div></header>
+<header><div class="brand"><div><div class="logo"><span>Run</span>Assist</div><div class="note">GA · iPad PWA v0.8.6 · Gangphasen-Modus FIX</div></div><div class="note">Befundworkflow</div></div></header>
 <main>
 
 <section class="card">
@@ -1380,14 +1380,15 @@ $('recordingPlane').onchange=updateSetup;$('filmedSide').onchange=updateSetup;$(
 $('buildSummary').onclick=buildObjectiveSummary;
 updateSetup();
 </script>
-<div style="text-align:center;color:#6b7b7d;font-size:10px;padding:18px">Build 0.8.5 · 2026-09-22</div>
+<div style="text-align:center;color:#6b7b7d;font-size:10px;padding:18px">Build 0.8.6 · 2026-09-22</div>
 <script>
 (()=>{
  const names=['Initial Contact','Loading Response','Early Mid Stance','Late Mid Stance','Terminal Stance','Pre-Swing','Initial Swing','Mid Swing','Terminal Swing'];
  let p=0, cyc=0;
  const $x=id=>document.getElementById(id);
  function targetButton(){
-   return document.querySelector('[data-capture="'+p+'"][data-slot="'+cyc+'"]');
+   const slot = cyc===0 ? 'A' : 'B';
+   return document.querySelector('[data-capture="'+p+'"][data-slot="'+slot+'"]');
  }
  function render(){
    const done=p+cyc*9;
@@ -1406,6 +1407,8 @@ updateSetup();
    const b=targetButton();
    if(!b){alert('Phasen-Speicher nicht gefunden.');return;}
    b.click();
+   $x('capSave').textContent='✓ GESPEICHERT';
+   setTimeout(()=>{$x('capSave').textContent='✓ AKTUELLEN FRAME ÜBERNEHMEN';},450);
    if(p<8)p++; else if(cyc===0){cyc=1;p=0;} else {p=8; $x('capTitle').textContent='Beide Zyklen vollständig ✓'; $x('capProgress').textContent='18/18 gespeichert · jetzt phasenweise befunden'; return;}
    render();
  };
